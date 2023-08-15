@@ -1,19 +1,12 @@
 #!/usr/bin/env python3
 
 import argparse
-from datetime import datetime
-from ics import Calendar, Event
-from lunarcalendar import Converter, Solar, Lunar
+import datetime
+import ics
+import lunarcalendar
 import json
 import os
 import sys
-
-# with open()
-
-# calendar = Calendar()
-
-
-# print(calendar.serialize())
 
 # Global vars
 KEY_PERSONS='persons'
@@ -24,8 +17,6 @@ KEY_BIRTHDAY_LUNAR = 'birthday_lunar'
 def die(err):
     sys.exit(err)
 
-# Returns: [['name':'A', 'birthday':'2023-09-09'], ['name':'A', 'birthday':'2023-09-09']]
-# Returned birthday is lunar
 def json_to_persons(json_file_path):
     ret = []
     with open(json_file_path, 'r') as f:
@@ -38,8 +29,8 @@ def json_to_persons(json_file_path):
                 if KEY_BIRTHDAY not in person:
                     die(f'missing key {KEY_BIRTHDAY} in {json_file_path}')
                 
-                birthday = datetime.strptime(person[KEY_BIRTHDAY], '%Y-%m-%d')
-                birthday_luna = Converter.Solar2Lunar(Solar(birthday.year, birthday.month, birthday.day))
+                birthday = datetime.datetime.strptime(person[KEY_BIRTHDAY], '%Y-%m-%d')
+                birthday_luna = lunarcalendar.Converter.Solar2Lunar(lunarcalendar.Solar(birthday.year, birthday.month, birthday.day))
 
                 person[KEY_BIRTHDAY] = birthday
                 person[KEY_BIRTHDAY_LUNAR] = birthday_luna
@@ -65,9 +56,9 @@ if __name__ == "__main__":
     persons = json_to_persons(json_file_path)
     # print(persons)
 
-    calendar = Calendar()
+    calendar = ics.Calendar()
     event_steps = list(range(event_count))
-    this_year = datetime.today().year
+    this_year = datetime.datetime.today().year
     
     for person in persons:
         birthday_lunar= person[KEY_BIRTHDAY_LUNAR]
@@ -82,16 +73,16 @@ if __name__ == "__main__":
             if age < 0:
                 continue
             
-            e = Event()
+            e = ics.Event()
             e.name = f'{name}的农历{age}岁生日'
             e.description = f'祝生日快乐，{birthday_year}年出生，又长大一岁'
 
-            new_birthday_lunar = Lunar(this_year, birthday_lunar_month, birthday_lunar_day, isleap=False)
-            new_birthday_solar = Converter.Lunar2Solar(new_birthday_lunar)
+            new_birthday_lunar = lunarcalendar.Lunar(this_year, birthday_lunar_month, birthday_lunar_day, isleap=False)
+            new_birthday_solar = lunarcalendar.Converter.Lunar2Solar(new_birthday_lunar)
             
-            e.begin = datetime(new_birthday_solar.year, new_birthday_solar.month, new_birthday_solar.day)
+            e.begin = datetime.datetime(new_birthday_solar.year, new_birthday_solar.month, new_birthday_solar.day)
             e.make_all_day()
-            e.created = datetime.now()
+            e.created = datetime.datetime.now()
             calendar.events.add(e)
 
     print(calendar.serialize())
