@@ -75,12 +75,14 @@ if __name__ == "__main__":
                                      description='A simple script to generate chinese lunar calendar birthday')
     parser.add_argument('-i', metavar='config.json', help='The input config file', required=True)
     parser.add_argument('-c', metavar='COUNT', help='The number of occurrences(in years), default value: 50', default=50, type=int)
+    parser.add_argument('-m', metavar='MAX_AGE', help='Max age, default value: 100', default=100, type=int)
 
     args = vars(parser.parse_args())
     # print(args)
 
     json_file_path = args['i']
     event_count = args['c']
+    max_age = args['m']
     
     persons = json_to_persons(json_file_path)
     # print(persons)
@@ -99,7 +101,7 @@ if __name__ == "__main__":
         for step in event_steps:
             solar_new_year = today_solar_year + step
             age = solar_new_year - birthday_solar_year
-            if age >= 0:           
+            if 0 <= age and age <= max_age:           
                 append_birthday_to_calendar(calendar, solar_new_year, birthday_lunar_month, birthday_lunar_day, name, age)
 
     print(calendar.serialize())

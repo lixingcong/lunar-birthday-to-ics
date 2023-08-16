@@ -2,7 +2,7 @@
 
 ## 依赖：
 
-- Python 3
+- Python 3.6+
 
 - [ics-py](https://github.com/ics-py/ics-py)
 
@@ -44,7 +44,7 @@ END:VCALENDAR
 python3 main.py -i config.json -c 50 > /tmp/exported.ics
 ```
 
-注意[config.json](config-example.json)中的```birthday```字段为公历出生日期
+注意[config.json](config-example.json)中的```birthday```字段为公历出生日期，须遵循```yyyy-mm-dd```格式
 
 ## 导入到Google日历
 
