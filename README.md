@@ -17,7 +17,7 @@ pip install LunarCalendar
 # 生成从今年开始的未来50年的农历生日
 python3 main.py -i config.json -c 50
 
-# 打印结果如下
+# 打印结果类似如下
 BEGIN:VCALENDAR
 VERSION:2.0
 PRODID:ics.py - http://git.io/lLljaA
@@ -38,12 +38,11 @@ END:VEVENT
 END:VCALENDAR
 ```
 
-或者直接将脚本输出的内容，重定向到文件
+将脚本输出的内容，重定向到文件，即可导出为ics
 
 ```
 python3 main.py -i config.json -c 50 > /tmp/exported.ics
 ```
-
 
 注意[config.json](config-example.json)中的```birthday```字段为公历出生日期
 
@@ -53,10 +52,6 @@ python3 main.py -i config.json -c 50 > /tmp/exported.ics
 2. 设置该日历的"全天日程"默认提醒方式，如"提前3日发邮件+提前4小时弹出提醒"
 3. 将ics导入到该日历
 4. 若有误操作，可以直接删除该日历
-
-## TODO
-
-- [ ] 农历闰月生日
 
 ## 参考项目
 

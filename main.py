@@ -39,6 +39,35 @@ def json_to_persons(json_file_path):
             die(f'missing key {KEY_PERSONS} in {json_file_path}')
     return ret
 
+def append_birthday_to_calendar(calendar, solar_year, lunar_month, lunar_day, name, age):
+    new_birthday_solars = []
+
+    # birthday which is not leap month
+    new_birthday_lunar = lunarcalendar.Lunar(solar_year, lunar_month, lunar_day, isleap = False)
+    new_birthday_solars.append(lunarcalendar.Converter.Lunar2Solar(new_birthday_lunar))
+
+    # birthday which is leap month
+    try:
+        new_birthday_lunar = lunarcalendar.Lunar(solar_year, lunar_month, lunar_day, isleap = True)
+        new_birthday_solars.append(lunarcalendar.Converter.Lunar2Solar(new_birthday_lunar))
+        # print(f'There is a leap month in {solar_year}-{lunar_month}')
+    except lunarcalendar.DateNotExist:
+        # print(f'Not exist for leap month in {solar_year}-{lunar_month}')
+        pass
+
+    for i in range(len(new_birthday_solars)):
+        new_birthday_solar = new_birthday_solars[i]
+
+        icsEvent = ics.Event()
+        icsEvent.name = f'{name}的农历{age}岁生日'
+        if i > 0:
+            icsEvent.name += '(闰)'
+        icsEvent.description = f'生日快乐，公历{birthday_solar_year}年出生，农历{lunar_month:02d}-{lunar_day:02d}'
+        icsEvent.begin = datetime.datetime(new_birthday_solar.year, new_birthday_solar.month, new_birthday_solar.day)
+        icsEvent.make_all_day()
+        icsEvent.created = datetime.datetime.now()
+        calendar.events.add(icsEvent)
+
 if __name__ == "__main__":
     script_file = os.path.basename(sys.argv[0])
     parser = argparse.ArgumentParser(prog=script_file,
@@ -70,19 +99,7 @@ if __name__ == "__main__":
         for step in event_steps:
             solar_new_year = today_solar_year + step
             age = solar_new_year - birthday_solar_year
-            if age < 0:
-                continue
-            
-            icsEvent = ics.Event()
-            icsEvent.name = f'{name}的农历{age}岁生日'
-            icsEvent.description = f'祝生日快乐，{birthday_solar_year}年出生，又长大一岁'
-
-            new_birthday_lunar = lunarcalendar.Lunar(today_solar_year, birthday_lunar_month, birthday_lunar_day, isleap = False)
-            new_birthday_solar = lunarcalendar.Converter.Lunar2Solar(new_birthday_lunar)
-            
-            icsEvent.begin = datetime.datetime(new_birthday_solar.year, new_birthday_solar.month, new_birthday_solar.day)
-            icsEvent.make_all_day()
-            icsEvent.created = datetime.datetime.now()
-            calendar.events.add(icsEvent)
+            if age >= 0:           
+                append_birthday_to_calendar(calendar, solar_new_year, birthday_lunar_month, birthday_lunar_day, name, age)
 
     print(calendar.serialize())
